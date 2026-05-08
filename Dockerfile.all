@@ -1,0 +1,43 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install supervisord
+RUN apt-get update && apt-get install -y supervisor && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install Python dependencies
+COPY backend/services/auth-service/requirements.txt /tmp/auth-requirements.txt
+COPY backend/services/doctor-service/requirements.txt /tmp/doctor-requirements.txt
+COPY backend/services/appointment-service/requirements.txt /tmp/appointment-requirements.txt
+COPY backend/services/user-service/requirements.txt /tmp/user-requirements.txt
+COPY backend/services/notification-service/requirements.txt /tmp/notification-requirements.txt
+
+RUN pip install --no-cache-dir -r /tmp/auth-requirements.txt \
+    && pip install --no-cache-dir -r /tmp/doctor-requirements.txt \
+    && pip install --no-cache-dir -r /tmp/appointment-requirements.txt \
+    && pip install --no-cache-dir -r /tmp/user-requirements.txt \
+    && pip install --no-cache-dir -r /tmp/notification-requirements.txt
+
+# Copy all backend services
+COPY backend/services/auth-service /app/auth-service
+COPY backend/services/doctor-service /app/doctor-service
+COPY backend/services/appointment-service /app/appointment-service
+COPY backend/services/user-service /app/user-service
+COPY backend/services/notification-service /app/notification-service
+
+# Copy frontend
+COPY frontend /app/frontend
+
+# Install frontend dependencies and build
+WORKDIR /app/frontend
+RUN npm install && npm run build
+
+# Copy supervisor configuration
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Expose ports
+EXPOSE 8001 8002 8003 8004 8005 5173
+
+WORKDIR /app
+
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
