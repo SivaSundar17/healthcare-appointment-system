@@ -12,7 +12,7 @@ export PORT=${PORT:-8080}
 
 # Generate nginx config with correct port
 echo "=== Generating Nginx Configuration ==="
-cat > /etc/nginx/sites-available/default << 'EOF'
+cat > /etc/nginx/sites-available/default << EOF
 upstream auth_service {
     server 127.0.0.1:8001;
 }
@@ -38,7 +38,7 @@ upstream frontend {
 }
 
 server {
-    listen 8080;
+    listen ${PORT};
     server_name _;
 
     # Healthcheck endpoint
@@ -51,62 +51,59 @@ server {
     # API routes - Auth service
     location /api/auth/ {
         proxy_pass http://auth_service/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
 
     # API routes - Doctor service
     location /api/doctors/ {
         proxy_pass http://doctor_service/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
 
     # API routes - Appointment service
     location /api/appointments/ {
         proxy_pass http://appointment_service/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
 
     # API routes - User service
     location /api/users/ {
         proxy_pass http://user_service/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
 
     # API routes - Notification service
     location /api/notifications/ {
         proxy_pass http://notification_service/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
 
     # Frontend
     location / {
         proxy_pass http://frontend/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
 }
 EOF
-
-# Replace PORT placeholder
-sed -i "s/listen 8080;/listen $PORT;/g" /etc/nginx/sites-available/default
 
 # Enable nginx site
 ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 # Create database tables automatically
 echo "=== Creating Database Tables ==="
-python3 /app/create_tables.py || echo "Warning: Could not create tables - they might already exist"
+cd /app && python3 create_tables.py || echo "Warning: Could not create tables - they might already exist"
 
 # Test database connection
 echo "=== Testing Database Connection ==="

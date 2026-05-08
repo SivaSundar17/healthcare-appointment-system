@@ -20,23 +20,23 @@ try:
     
     # Create all tables
     AuthBase.metadata.create_all(bind=auth_engine)
-    print("✓ Auth tables created")
+    print("Auth tables created")
     
     DoctorBase.metadata.create_all(bind=doctor_engine)
-    print("✓ Doctor tables created")
+    print("Doctor tables created")
     
     AppointmentBase.metadata.create_all(bind=appointment_engine)
-    print("✓ Appointment tables created")
+    print("Appointment tables created")
     
     UserBase.metadata.create_all(bind=user_engine)
-    print("✓ User tables created")
+    print("User tables created")
     
     NotificationBase.metadata.create_all(bind=notification_engine)
-    print("✓ Notification tables created")
+    print("Notification tables created")
     
-    print("\n✓ All database tables created successfully!")
+    print("All database tables created successfully!")
     
 except Exception as e:
-    print(f"✗ Error creating tables: {e}")
+    print("Error creating tables:", e)
     print("Tables might already exist, continuing...")
     sys.exit(0)  # Don't fail the build if tables already exist
