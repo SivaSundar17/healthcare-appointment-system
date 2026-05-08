@@ -101,10 +101,6 @@ EOF
 # Enable nginx site
 ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
-# Create database tables automatically
-echo "=== Creating Database Tables ==="
-cd /app && python3 create_tables.py || echo "Warning: Could not create tables - they might already exist"
-
 # Test database connection
 echo "=== Testing Database Connection ==="
 python3 -c "
