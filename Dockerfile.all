@@ -39,9 +39,8 @@ RUN npm install && npm run build
 # Copy supervisor configuration
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/sites-available/default
-RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+# Enable nginx default site
+RUN rm -f /etc/nginx/sites-enabled/default
 
 # Copy entrypoint script
 COPY entrypoint.sh /app/entrypoint.sh
