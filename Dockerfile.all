@@ -25,11 +25,11 @@ RUN pip install --no-cache-dir -r /tmp/auth-requirements.txt \
     && pip install --no-cache-dir -r /tmp/notification-requirements.txt
 
 # Copy all backend services
-COPY backend/services/auth-service /app/auth-service
-COPY backend/services/doctor-service /app/doctor-service
-COPY backend/services/appointment-service /app/appointment-service
-COPY backend/services/user-service /app/user-service
-COPY backend/services/notification-service /app/notification-service
+COPY backend/services/auth-service /app/auth_service
+COPY backend/services/doctor-service /app/doctor_service
+COPY backend/services/appointment-service /app/appointment_service
+COPY backend/services/user-service /app/user_service
+COPY backend/services/notification-service /app/notification_service
 
 # Copy frontend and build
 COPY frontend /app/frontend
