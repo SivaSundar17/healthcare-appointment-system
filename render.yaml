@@ -9,7 +9,7 @@ services:
     healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
-        value: postgresql://postgres:YoOjpVQdISUVqRTgpaEQxzxWGvzKPlSJ@turntable.proxy.rlwy.net:33102/railway
+        value: postgresql://healthcare_user:0YXeJlTTYQSwFuIf6uau24tmqYSgKm54@dpg-d7uu4i77f7vs73d14b20-a/healthcare_xkpc
       - key: JWT_SECRET_KEY
         value: your-secret-key-here-change-this
       - key: PYTHONPATH
