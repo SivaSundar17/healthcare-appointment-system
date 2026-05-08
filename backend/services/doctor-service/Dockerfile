@@ -2,10 +2,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY backend/services/doctor-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py models.py ./
+COPY backend/services/doctor-service/main.py backend/services/doctor-service/models.py ./
 
 EXPOSE 8003
 

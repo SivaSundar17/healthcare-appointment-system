@@ -2,10 +2,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY backend/services/notification-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py ./
+COPY backend/services/notification-service/main.py ./
 
 EXPOSE 8005
 
