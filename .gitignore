@@ -1,0 +1,90 @@
+# Environment variables (contains secrets!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Firebase credentials (contains secrets!)
+firebase-credentials.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.log
+pip-log.txt
+pip-delete-this-directory.txt
+*.sqlite
+*.db
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+dist/
+build/
+
+# Frontend build
+frontend/dist/
+frontend/build/
+
+# Backend generated files
+backend/services/*/__pycache__/
+backend/services/*/*.pyc
+backend/services/*/logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Utility scripts (not part of main codebase)
+write_models.py
