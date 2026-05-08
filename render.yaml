@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: healthcare-app
+    runtime: docker
+    repo: https://github.com/SivaSundar17/healthcare-appointment-system.git
+    branch: main
+    dockerfilePath: ./Dockerfile.all
+    numInstances: 1
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://postgres:YoOjpVQdISUVqRTgpaEQxzxWGvzKPlSJ@turntable.proxy.rlwy.net:33102/railway
+      - key: JWT_SECRET_KEY
+        value: your-secret-key-here-change-this
+      - key: PYTHONPATH
+        value: /app
+      - key: PORT
+        value: 8080
