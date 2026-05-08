@@ -98,14 +98,8 @@ server {
 }
 EOF
 
-# Create symlinks for service directories (replace hyphens with underscores for Python imports)
-echo "=== Creating Python-compatible symlinks ==="
-cd /app
-ln -sf auth-service auth_service
-ln -sf doctor-service doctor_service
-ln -sf appointment-service appointment_service
-ln -sf user-service user_service
-ln -sf notification-service notification_service
+# Enable nginx site
+ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 # Test database connection
 echo "=== Testing Database Connection ==="
@@ -130,10 +124,11 @@ except Exception as e:
 
 # Test imports for each service
 echo "=== Testing Service Imports ==="
-for service in auth_service doctor_service appointment_service user_service notification_service; do
-    echo "Testing $service..."
-    python3 -c "import sys; sys.path.insert(0, '/app'); from $service.main import app; print('$service: OK')" 2>&1 || echo "$service: FAILED - check logs"
-done
+cd /app/auth_service && python3 -c "from main import app; print('auth_service: OK')" 2>&1 || echo "auth_service: FAILED - check logs"
+cd /app/doctor_service && python3 -c "from main import app; print('doctor_service: OK')" 2>&1 || echo "doctor_service: FAILED - check logs"
+cd /app/appointment_service && python3 -c "from main import app; print('appointment_service: OK')" 2>&1 || echo "appointment_service: FAILED - check logs"
+cd /app/user_service && python3 -c "from main import app; print('user_service: OK')" 2>&1 || echo "user_service: FAILED - check logs"
+cd /app/notification_service && python3 -c "from main import app; print('notification_service: OK')" 2>&1 || echo "notification_service: FAILED - check logs"
 
 echo "=== Starting Supervisord ==="
 exec supervisord -c /etc/supervisor/conf.d/supervisord.conf
