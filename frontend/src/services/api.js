@@ -1,104 +1,114 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+// Service URLs - can be overridden by environment variables
+const AUTH_URL = import.meta.env.VITE_AUTH_URL || 'http://localhost:8001';
+const DOCTOR_URL = import.meta.env.VITE_DOCTOR_URL || 'http://localhost:8003';
+const APPOINTMENT_URL = import.meta.env.VITE_APPOINTMENT_URL || 'http://localhost:8004';
+const USER_URL = import.meta.env.VITE_USER_URL || 'http://localhost:8002';
+const NOTIFICATION_URL = import.meta.env.VITE_NOTIFICATION_URL || 'http://localhost:8005';
 
-// Create axios instance with default config
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+// Create axios instances for each service
+const authApi = axios.create({
+  baseURL: `${AUTH_URL}/api`,
+  headers: { 'Content-Type': 'application/json' },
   timeout: 10000,
 });
 
-// Request interceptor to add auth token
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+const doctorApi = axios.create({
+  baseURL: `${DOCTOR_URL}/api`,
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 10000,
+});
 
-// Response interceptor for error handling
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response) {
-      // Server responded with error status
-      console.error('API Error:', error.response.data);
-      
-      // Show error message from server, or default message
-      const errorMessage = error.response.data?.detail || 'An error occurred';
-      toast.error(errorMessage);
-      
-      if (error.response.status === 401) {
-        // Unauthorized - clear token and redirect to login
-        localStorage.removeItem('auth_token');
-        window.location.href = '/login';
+const appointmentApi = axios.create({
+  baseURL: `${APPOINTMENT_URL}/api`,
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 10000,
+});
+
+const userApi = axios.create({
+  baseURL: `${USER_URL}/api`,
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 10000,
+});
+
+const notificationApi = axios.create({
+  baseURL: `${NOTIFICATION_URL}/api`,
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 10000,
+});
+
+// Add auth token to all requests
+const addAuthInterceptor = (apiInstance) => {
+  apiInstance.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
-    } else if (error.request) {
-      // Request made but no response received
-      console.error('Network Error:', error.request);
-      toast.error('Network error. Please check your connection.');
-    } else {
-      // Error in request configuration
-      console.error('Request Error:', error.message);
-      toast.error('Request failed. Please try again.');
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+
+  apiInstance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response) {
+        console.error('API Error:', error.response.data);
+        const errorMessage = error.response.data?.detail || 'An error occurred';
+        toast.error(errorMessage);
+        
+        if (error.response.status === 401) {
+          localStorage.removeItem('auth_token');
+          window.location.href = '/login';
+        }
+      } else if (error.request) {
+        console.error('Network Error:', error.request);
+        toast.error('Network error. Please check your connection.');
+      }
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
-  }
-);
+  );
+};
 
-// Auth Service
+// eslint-disable-next-line no-unused-vars
+import { toast } from 'react-hot-toast';
+
+addAuthInterceptor(authApi);
+addAuthInterceptor(doctorApi);
+addAuthInterceptor(appointmentApi);
+addAuthInterceptor(userApi);
+addAuthInterceptor(notificationApi);
+
+// Export service-specific API instances
 export const authService = {
-  verifyToken: (idToken) => api.post('/verify-token', { id_token: idToken }),
-  getUser: (uid) => api.get(`/auth/user/${uid}`),
+  login: (data) => authApi.post('/auth/login', data),
+  signup: (data) => authApi.post('/auth/signup', data),
+  getProfile: () => authApi.get('/auth/profile'),
 };
 
-// User Service
-export const userService = {
-  createPatient: (data) => api.post('/users/patients', data),
-  getPatient: (id) => api.get(`/users/patients/${id}`),
-  updatePatient: (id, data) => api.put(`/users/patients/${id}`, data),
-  getMedicalRecords: (id) => api.get(`/users/patients/${id}/medical-records`),
-  addMedicalRecord: (id, data) => api.post(`/users/patients/${id}/medical-records`, data),
-};
-
-// Doctor Service
 export const doctorService = {
-  createDoctor: (data) => api.post('/doctors', data),
-  getDoctor: (id) => api.get(`/doctors/${id}`),
-  updateDoctor: (id, data) => api.put(`/doctors/${id}`, data),
-  listDoctors: (params) => api.get('/doctors', { params }),
-  getSpecializations: () => api.get('/specializations'),
-  getAvailability: (id, date) => api.get(`/doctors/${id}/availability`, { params: { date } }),
-  getSlots: (id, date) => api.get(`/doctors/${id}/slots`, { params: { date } }),
-  addAvailability: (id, data) => api.post(`/doctors/${id}/availability`, data),
+  getDoctors: (params) => doctorApi.get('/doctors/', { params }),
+  getDoctor: (id) => doctorApi.get(`/doctors/${id}`),
+  getSlots: (id, date) => doctorApi.get(`/doctors/${id}/slots`, { params: { date } }),
+  addReview: (id, data) => doctorApi.post(`/doctors/${id}/reviews`, data),
 };
 
-// Appointment Service
 export const appointmentService = {
-  createAppointment: (data) => api.post('/appointments/appointments', data),
-  getAppointment: (id) => api.get(`/appointments/appointments/${id}`),
-  updateAppointment: (id, data) => api.put(`/appointments/appointments/${id}`, data),
-  cancelAppointment: (id, reason) => api.post(`/appointments/appointments/${id}/cancel`, { reason }),
-  getPatientAppointments: (id, status) => api.get(`/appointments/appointments/patient/${id}`, { params: { status } }),
-  getDoctorAppointments: (id, params) => api.get(`/appointments/appointments/doctor/${id}`, { params }),
-  getAppointmentHistory: (id) => api.get(`/appointments/appointments/${id}/history`),
+  getAppointments: (params) => appointmentApi.get('/appointments/', { params }),
+  createAppointment: (data) => appointmentApi.post('/appointments/', data),
+  updateStatus: (id, data) => appointmentApi.patch(`/appointments/${id}/status`, data),
+  updatePayment: (id) => appointmentApi.post(`/appointments/${id}/payment`),
 };
 
-// Notification Service
+export const userService = {
+  getProfile: () => userApi.get('/users/profile'),
+  updateProfile: (data) => userApi.put('/users/profile', data),
+};
+
 export const notificationService = {
-  getNotifications: (userId, unreadOnly = false) => 
-    api.get(`/notifications/notifications/${userId}`, { params: { unread_only: unreadOnly } }),
-  markAsRead: (notificationId) => api.post(`/notifications/notifications/${notificationId}/read`),
-  markAllAsRead: (userId) => api.post(`/notifications/notifications/${userId}/read-all`),
+  getNotifications: () => notificationApi.get('/notifications/'),
 };
 
-export default api;
+export default authApi;
