@@ -1,0 +1,16 @@
+[build]
+  builder = "dockerfile"
+  dockerfilePath = "Dockerfile.all"
+
+[deploy]
+  startCommand = "/app/entrypoint.sh"
+  healthcheckPath = "/docs"
+  restartPolicyMaxRetries = 10
+
+[[services]]
+  name = "healthcare-app"
+  
+  [services.variables]
+  DATABASE_URL = "postgresql://postgres:YoOjpVQdISUVqRTgpaEQxzxWGvzKPlSJ@turntable.proxy.rlwy.net:33102/railway"
+  JWT_SECRET_KEY = "your-secret-key-here-change-this"
+  VITE_API_URL = "https://your-railway-app-url.railway.app"
