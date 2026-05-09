@@ -80,8 +80,8 @@ CREATE TABLE availability (
 -- Note: No ForeignKey constraints to allow doctors to book appointments with other doctors
 CREATE TABLE appointments (
     id SERIAL PRIMARY KEY,
-    patient_id VARCHAR,
-    doctor_id VARCHAR,
+    patient_id INTEGER,
+    doctor_id INTEGER,
     appointment_date DATE,
     start_time TIME,
     end_time TIME,
@@ -113,8 +113,8 @@ CREATE TABLE appointment_history (
 -- Create medical_records table (managed by user-service)
 CREATE TABLE medical_records (
     id SERIAL PRIMARY KEY,
-    patient_id VARCHAR,
-    doctor_id VARCHAR,
+    patient_id INTEGER,
+    doctor_id INTEGER,
     record_date DATE,
     diagnosis TEXT,
     prescription TEXT,
