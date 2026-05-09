@@ -60,6 +60,7 @@ class DoctorResponse(BaseModel):
     class Config:
         from_attributes = True
         populate_by_name = True
+        extra = 'ignore'
 
 class AvailabilityCreate(BaseModel):
     day_of_week: Optional[int] = None
@@ -86,6 +87,7 @@ class AvailabilityResponse(BaseModel):
     
     class Config:
         from_attributes = True
+        extra = 'ignore'
 
 class DoctorReviewCreate(BaseModel):
     patient_id: int
@@ -93,15 +95,16 @@ class DoctorReviewCreate(BaseModel):
     review: Optional[str] = None
 
 class DoctorReviewResponse(BaseModel):
-    id: int
-    doctor_id: int
-    patient_id: int
-    rating: int
+    id: Optional[int] = None
+    doctor_id: Optional[int] = None
+    patient_id: Optional[int] = None
+    rating: Optional[int] = None
     review: Optional[str] = None
     created_at: Optional[datetime] = None
     
     class Config:
         from_attributes = True
+        extra = 'ignore'
 
 # Verify token with auth service
 AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://localhost:8001")
