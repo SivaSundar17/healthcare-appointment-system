@@ -4,9 +4,9 @@ import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 
-const API_URL = import.meta.env.VITE_AUTH_URL || 'http://localhost:8001'; // Auth Service
-const USER_SERVICE_URL = import.meta.env.VITE_USER_URL || 'http://localhost:8002'; // User Service
-const DOCTOR_SERVICE_URL = import.meta.env.VITE_DOCTOR_URL || 'http://localhost:8003'; // Doctor Service
+const API_URL = 'http://localhost:8001'; // Auth Service (local)
+const USER_SERVICE_URL = 'http://localhost:8002'; // User Service (local)
+const DOCTOR_SERVICE_URL = 'http://localhost:8003'; // Doctor Service (local)
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

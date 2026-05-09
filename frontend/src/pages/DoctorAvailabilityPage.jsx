@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Calendar, Clock, Plus, Trash2, AlertCircle, Check, X, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const DOCTOR_SERVICE_URL = import.meta.env.VITE_DOCTOR_URL || 'http://localhost:8003';
+const DOCTOR_SERVICE_URL = 'http://localhost:8003';
 
 const DoctorAvailabilityPage = () => {
   const { user, token } = useAuth();

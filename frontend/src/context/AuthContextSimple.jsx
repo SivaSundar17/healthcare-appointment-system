@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 
-const API_URL = import.meta.env.VITE_AUTH_URL || 'http://localhost:8001'; // Auth Service
+const API_URL = 'http://localhost:8001'; // Auth Service (local)
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

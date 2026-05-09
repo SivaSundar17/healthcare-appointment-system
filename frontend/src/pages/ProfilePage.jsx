@@ -15,8 +15,8 @@ import {
 import axios from 'axios';
 import { format } from 'date-fns';
 
-const API_URL_USER = import.meta.env.VITE_USER_URL || 'http://localhost:8002';
-const API_URL_DOCTOR = import.meta.env.VITE_DOCTOR_URL || 'http://localhost:8003';
+const API_URL_USER = 'http://localhost:8002';
+const API_URL_DOCTOR = 'http://localhost:8003';
 
 const ProfilePage = () => {
   const { user, userRole } = useAuth();
