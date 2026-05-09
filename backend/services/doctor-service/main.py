@@ -46,11 +46,11 @@ class DoctorUpdate(BaseModel):
     is_active: Optional[bool] = None
 
 class DoctorResponse(BaseModel):
-    id: int  # Return as integer for PostgreSQL
-    email: str
-    first_name: str
-    last_name: str
-    specialization: str
+    id: Optional[int] = None
+    email: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    specialization: Optional[str] = None
     phone: Optional[str] = None
     consultation_fee: Optional[float] = 0.0
     is_active: Optional[bool] = True
@@ -59,6 +59,7 @@ class DoctorResponse(BaseModel):
     
     class Config:
         from_attributes = True
+        populate_by_name = True
 
 class AvailabilityCreate(BaseModel):
     day_of_week: Optional[int] = None
