@@ -51,11 +51,11 @@ class DoctorResponse(BaseModel):
     first_name: str
     last_name: str
     specialization: str
-    phone: Optional[str]
-    consultation_fee: float
-    is_active: bool
-    rating: float
-    review_count: int
+    phone: Optional[str] = None
+    consultation_fee: Optional[float] = 0.0
+    is_active: Optional[bool] = True
+    rating: Optional[float] = 0.0
+    review_count: Optional[int] = 0
     
     class Config:
         from_attributes = True
@@ -76,11 +76,12 @@ class TimeSlot(BaseModel):
 class AvailabilityResponse(BaseModel):
     id: int
     doctor_id: int
-    day_of_week: Optional[int]
-    date: Optional[date]
-    start_time: time
-    end_time: time
-    is_available: bool
+    day_of_week: Optional[int] = None
+    date: Optional[date] = None
+    start_time: Optional[time] = None
+    end_time: Optional[time] = None
+    is_available: Optional[bool] = True
+    slot_duration: Optional[int] = 30
     
     class Config:
         from_attributes = True
@@ -95,8 +96,8 @@ class DoctorReviewResponse(BaseModel):
     doctor_id: int
     patient_id: int
     rating: int
-    review: Optional[str]
-    created_at: datetime
+    review: Optional[str] = None
+    created_at: Optional[datetime] = None
     
     class Config:
         from_attributes = True
