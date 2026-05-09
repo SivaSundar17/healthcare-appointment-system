@@ -137,7 +137,22 @@ async def create_patient(patient: PatientCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_patient)
     
-    return new_patient
+    # Convert to dict handling NULL values
+    return {
+        "id": new_patient.id,
+        "email": new_patient.email,
+        "first_name": new_patient.first_name,
+        "last_name": new_patient.last_name,
+        "phone": new_patient.phone,
+        "date_of_birth": new_patient.date_of_birth,
+        "gender": new_patient.gender,
+        "address": new_patient.address,
+        "blood_group": new_patient.blood_group,
+        "allergies": new_patient.allergies,
+        "emergency_contact": new_patient.emergency_contact,
+        "created_at": new_patient.created_at,
+        "updated_at": new_patient.updated_at
+    }
 
 # Get patient by ID
 @app.get("/patients/{patient_id}", response_model=PatientResponse)
@@ -146,7 +161,23 @@ async def get_patient(patient_id: int, db: Session = Depends(get_db)):
     patient = db.query(Patient).filter(Patient.id == patient_id).first()
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found")
-    return patient
+    
+    # Convert to dict handling NULL values
+    return {
+        "id": patient.id,
+        "email": patient.email,
+        "first_name": patient.first_name,
+        "last_name": patient.last_name,
+        "phone": patient.phone,
+        "date_of_birth": patient.date_of_birth,
+        "gender": patient.gender,
+        "address": patient.address,
+        "blood_group": patient.blood_group,
+        "allergies": patient.allergies,
+        "emergency_contact": patient.emergency_contact,
+        "created_at": patient.created_at,
+        "updated_at": patient.updated_at
+    }
 
 # Update patient profile
 @app.put("/patients/{patient_id}", response_model=PatientResponse)
@@ -164,25 +195,45 @@ async def update_patient(patient_id: int, patient_update: PatientUpdate, db: Ses
     db.commit()
     db.refresh(patient)
     
-    return patient
+    # Convert to dict handling NULL values
+    return {
+        "id": patient.id,
+        "email": patient.email,
+        "first_name": patient.first_name,
+        "last_name": patient.last_name,
+        "phone": patient.phone,
+        "date_of_birth": patient.date_of_birth,
+        "gender": patient.gender,
+        "address": patient.address,
+        "blood_group": patient.blood_group,
+        "allergies": patient.allergies,
+        "emergency_contact": patient.emergency_contact,
+        "created_at": patient.created_at,
+        "updated_at": patient.updated_at
+    }
 
 # Get all patients (optional - for admin use)
 @app.get("/patients", response_model=List[PatientResponse])
 async def get_patients(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """Get all patients with pagination"""
     patients = db.query(Patient).offset(skip).limit(limit).all()
-    return patients
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Invalid authorization header")
     
-    token = authorization.split(" ")[1]
-    try:
-        response = requests.get(
-            f"{AUTH_SERVICE_URL}/verify-token",
-            headers={"Authorization": f"Bearer {token}"}
-        )
-        if response.status_code == 200:
-            return response.json()
-    except:
-        pass
-    return None
+    # Convert to dicts handling NULL values
+    result = []
+    for patient in patients:
+        result.append({
+            "id": patient.id,
+            "email": patient.email,
+            "first_name": patient.first_name,
+            "last_name": patient.last_name,
+            "phone": patient.phone,
+            "date_of_birth": patient.date_of_birth,
+            "gender": patient.gender,
+            "address": patient.address,
+            "blood_group": patient.blood_group,
+            "allergies": patient.allergies,
+            "emergency_contact": patient.emergency_contact,
+            "created_at": patient.created_at,
+            "updated_at": patient.updated_at
+        })
+    return result

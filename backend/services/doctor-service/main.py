@@ -156,7 +156,19 @@ async def create_doctor(doctor: DoctorCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_doctor)
     
-    return new_doctor
+    # Convert to dict handling NULL values
+    return {
+        "id": new_doctor.id,
+        "email": new_doctor.email,
+        "first_name": new_doctor.first_name,
+        "last_name": new_doctor.last_name,
+        "specialization": new_doctor.specialization,
+        "phone": new_doctor.phone,
+        "consultation_fee": new_doctor.consultation_fee or 0.0,
+        "is_active": new_doctor.is_active if new_doctor.is_active is not None else True,
+        "rating": new_doctor.rating or 0.0,
+        "review_count": new_doctor.review_count or 0
+    }
 
 # Get doctor by ID
 @app.get("/doctors/{doctor_id}", response_model=DoctorResponse)
@@ -165,7 +177,20 @@ async def get_doctor(doctor_id: int, db: Session = Depends(get_db)):
     doctor = db.query(Doctor).filter(Doctor.id == doctor_id).first()
     if not doctor:
         raise HTTPException(status_code=404, detail="Doctor not found")
-    return doctor
+    
+    # Convert to dict handling NULL values
+    return {
+        "id": doctor.id,
+        "email": doctor.email,
+        "first_name": doctor.first_name,
+        "last_name": doctor.last_name,
+        "specialization": doctor.specialization,
+        "phone": doctor.phone,
+        "consultation_fee": doctor.consultation_fee or 0.0,
+        "is_active": doctor.is_active if doctor.is_active is not None else True,
+        "rating": doctor.rating or 0.0,
+        "review_count": doctor.review_count or 0
+    }
 
 # Update doctor profile
 @app.put("/doctors/{doctor_id}", response_model=DoctorResponse)
@@ -182,7 +207,19 @@ async def update_doctor(doctor_id: int, doctor_update: DoctorUpdate, db: Session
     db.commit()
     db.refresh(doctor)
     
-    return doctor
+    # Convert to dict handling NULL values
+    return {
+        "id": doctor.id,
+        "email": doctor.email,
+        "first_name": doctor.first_name,
+        "last_name": doctor.last_name,
+        "specialization": doctor.specialization,
+        "phone": doctor.phone,
+        "consultation_fee": doctor.consultation_fee or 0.0,
+        "is_active": doctor.is_active if doctor.is_active is not None else True,
+        "rating": doctor.rating or 0.0,
+        "review_count": doctor.review_count or 0
+    }
 
 # Get all doctors
 @app.get("/doctors", response_model=List[DoctorResponse])
@@ -197,7 +234,23 @@ async def get_doctors(
     if specialization:
         query = query.filter(Doctor.specialization == specialization)
     doctors = query.offset(skip).limit(limit).all()
-    return doctors
+    
+    # Convert SQLAlchemy objects to dicts, handling NULL values
+    result = []
+    for doctor in doctors:
+        result.append({
+            "id": doctor.id,
+            "email": doctor.email,
+            "first_name": doctor.first_name,
+            "last_name": doctor.last_name,
+            "specialization": doctor.specialization,
+            "phone": doctor.phone,
+            "consultation_fee": doctor.consultation_fee or 0.0,
+            "is_active": doctor.is_active if doctor.is_active is not None else True,
+            "rating": doctor.rating or 0.0,
+            "review_count": doctor.review_count or 0
+        })
+    return result
 
 # ============= AVAILABILITY ENDPOINTS =============
 
