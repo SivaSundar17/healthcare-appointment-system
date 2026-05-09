@@ -56,22 +56,24 @@ class PatientUpdate(BaseModel):
     emergency_contact: Optional[str] = None
 
 class PatientResponse(BaseModel):
-    id: int  # Return as integer for PostgreSQL
-    email: str
-    first_name: str
-    last_name: str
-    phone: Optional[str]
-    date_of_birth: Optional[date]  # Use date type for DATE column
-    gender: Optional[str]
-    address: Optional[str]
-    blood_group: Optional[str]
-    allergies: Optional[str]
-    emergency_contact: Optional[str]
-    created_at: datetime
+    id: Optional[int] = None
+    email: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    phone: Optional[str] = None
+    date_of_birth: Optional[date] = None
+    gender: Optional[str] = None
+    address: Optional[str] = None
+    blood_group: Optional[str] = None
+    allergies: Optional[str] = None
+    emergency_contact: Optional[str] = None
+    created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     
     class Config:
         from_attributes = True
+        populate_by_name = True
+        extra = 'ignore'
 
 class MedicalRecordCreate(BaseModel):
     record_type: str
@@ -81,17 +83,19 @@ class MedicalRecordCreate(BaseModel):
     doctor_id: str
 
 class MedicalRecordResponse(BaseModel):
-    id: int
-    patient_id: str
-    record_type: str
-    title: str
-    description: Optional[str]
-    file_url: Optional[str]
-    doctor_id: str
-    created_at: datetime
+    id: Optional[int] = None
+    patient_id: Optional[str] = None
+    record_type: Optional[str] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    file_url: Optional[str] = None
+    doctor_id: Optional[str] = None
+    created_at: Optional[datetime] = None
     
     class Config:
         from_attributes = True
+        populate_by_name = True
+        extra = 'ignore'
 
 # Verify token with auth service
 AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://localhost:8001")
