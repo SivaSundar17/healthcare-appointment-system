@@ -66,7 +66,7 @@ CREATE TABLE patients (
 -- Create availability table (managed by doctor-service)
 CREATE TABLE availability (
     id SERIAL PRIMARY KEY,
-    doctor_id VARCHAR,
+    doctor_id INTEGER,
     day_of_week INTEGER,
     start_time TIME,
     end_time TIME,

@@ -302,14 +302,38 @@ async def add_availability(doctor_id: int, avail: AvailabilityCreate, db: Sessio
     db.commit()
     db.refresh(new_availability)
     
-    return new_availability
+    # Convert to dict to handle time/date serialization
+    return {
+        "id": new_availability.id,
+        "doctor_id": new_availability.doctor_id,
+        "day_of_week": new_availability.day_of_week,
+        "date": new_availability.date.isoformat() if new_availability.date else None,
+        "start_time": new_availability.start_time.isoformat() if new_availability.start_time else None,
+        "end_time": new_availability.end_time.isoformat() if new_availability.end_time else None,
+        "is_available": new_availability.is_available if new_availability.is_available is not None else True,
+        "slot_duration": new_availability.slot_duration or 30
+    }
 
 # Get doctor's availability
 @app.get("/doctors/{doctor_id}/availability", response_model=List[AvailabilityResponse])
 async def get_availability(doctor_id: int, db: Session = Depends(get_db)):
     """Get all availability slots for a doctor"""
     availability = db.query(Availability).filter(Availability.doctor_id == doctor_id).all()
-    return availability
+    
+    # Convert SQLAlchemy objects to dicts with proper serialization
+    result = []
+    for slot in availability:
+        result.append({
+            "id": slot.id,
+            "doctor_id": slot.doctor_id,
+            "day_of_week": slot.day_of_week,
+            "date": slot.date.isoformat() if slot.date else None,
+            "start_time": slot.start_time.isoformat() if slot.start_time else None,
+            "end_time": slot.end_time.isoformat() if slot.end_time else None,
+            "is_available": slot.is_available if slot.is_available is not None else True,
+            "slot_duration": slot.slot_duration or 30
+        })
+    return result
 
 # Update availability slot
 @app.put("/availability/{slot_id}", response_model=AvailabilityResponse)
