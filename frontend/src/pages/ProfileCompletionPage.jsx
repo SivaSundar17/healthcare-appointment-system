@@ -92,7 +92,17 @@ const ProfileCompletionPage = () => {
         navigate('/doctor/dashboard');
       }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to create profile');
+      const errorDetail = err.response?.data?.detail || '';
+      // If profile already exists, redirect to dashboard
+      if (errorDetail.toLowerCase().includes('already exists')) {
+        if (userRole === 'doctor') {
+          navigate('/doctor/dashboard');
+        } else {
+          navigate('/patient/dashboard');
+        }
+        return;
+      }
+      setError(errorDetail || 'Failed to create profile');
     } finally {
       setLoading(false);
     }
