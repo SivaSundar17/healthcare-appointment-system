@@ -171,11 +171,10 @@ export const AuthProvider = ({ children }) => {
       setProfileComplete(true);
       return true;
     } catch (error) {
-      if (error.response?.status === 404) {
-        setProfileComplete(false);
-        return false;
-      }
-      throw error;
+      // Any error (404, 500, etc.) means profile doesn't exist or service error
+      // Return false to redirect to profile completion
+      setProfileComplete(false);
+      return false;
     }
   };
 
