@@ -252,6 +252,15 @@ async def get_doctors(
         })
     return result
 
+# Get all unique specializations
+@app.get("/specializations")
+async def get_specializations(db: Session = Depends(get_db)):
+    """Get list of all unique specializations"""
+    specializations = db.query(Doctor.specialization).distinct().all()
+    # Filter out NULL values and flatten the result
+    result = [spec[0] for spec in specializations if spec[0]]
+    return result
+
 # ============= AVAILABILITY ENDPOINTS =============
 
 # Add availability slot for a doctor
