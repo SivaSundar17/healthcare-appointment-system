@@ -48,11 +48,9 @@ export const AuthProvider = ({ children }) => {
               setProfileComplete(true);
             }
           } catch (error) {
-            if (error.response?.status === 404) {
-              setProfileComplete(false);
-            } else {
-              setProfileComplete(true); // Assume complete if error is not 404
-            }
+            // Any error (404, 500, network) means profile doesn't exist or can't verify
+            // Force user to complete profile page
+            setProfileComplete(false);
           }
         } catch (e) {
           localStorage.removeItem('auth_user');
