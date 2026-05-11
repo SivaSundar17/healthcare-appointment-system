@@ -106,6 +106,26 @@ def send_notification(user_id: str, title: str, message: str, notification_type:
     except:
         pass  # Fail silently
 
+def serialize_appointment(appointment):
+    """Serialize Appointment SQLAlchemy object to dict"""
+    return {
+        "id": appointment.id,
+        "patient_id": appointment.patient_id,
+        "doctor_id": appointment.doctor_id,
+        "appointment_date": appointment.appointment_date.isoformat() if appointment.appointment_date else None,
+        "start_time": appointment.start_time.isoformat() if appointment.start_time else None,
+        "end_time": appointment.end_time.isoformat() if appointment.end_time else None,
+        "status": appointment.status,
+        "reason": appointment.reason,
+        "notes": appointment.notes,
+        "prescription": appointment.prescription,
+        "symptoms": appointment.symptoms,
+        "diagnosis": appointment.diagnosis,
+        "amount": appointment.amount,
+        "payment_status": appointment.payment_status,
+        "created_at": appointment.created_at.isoformat() if appointment.created_at else None
+    }
+
 @app.post("/appointments", response_model=AppointmentResponse)
 async def create_appointment(
     appointment: AppointmentCreate,
@@ -177,23 +197,7 @@ async def create_appointment(
     )
     
     # Return properly serialized response
-    return {
-        "id": new_appointment.id,
-        "patient_id": new_appointment.patient_id,
-        "doctor_id": new_appointment.doctor_id,
-        "appointment_date": new_appointment.appointment_date.isoformat() if new_appointment.appointment_date else None,
-        "start_time": new_appointment.start_time.isoformat() if new_appointment.start_time else None,
-        "end_time": new_appointment.end_time.isoformat() if new_appointment.end_time else None,
-        "status": new_appointment.status,
-        "reason": new_appointment.reason,
-        "notes": new_appointment.notes,
-        "prescription": new_appointment.prescription,
-        "symptoms": new_appointment.symptoms,
-        "diagnosis": new_appointment.diagnosis,
-        "amount": new_appointment.amount,
-        "payment_status": new_appointment.payment_status,
-        "created_at": new_appointment.created_at.isoformat() if new_appointment.created_at else None
-    }
+    return serialize_appointment(new_appointment)
 
 @app.get("/appointments/{appointment_id}", response_model=AppointmentResponse)
 async def get_appointment(
@@ -205,7 +209,7 @@ async def get_appointment(
     appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
     if not appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")
-    return appointment
+    return serialize_appointment(appointment)
 
 @app.get("/appointments/patient/{patient_id}", response_model=List[AppointmentResponse])
 async def get_patient_appointments(
@@ -219,7 +223,7 @@ async def get_patient_appointments(
     if status:
         query = query.filter(Appointment.status == status)
     appointments = query.order_by(Appointment.appointment_date.desc()).all()
-    return appointments
+    return [serialize_appointment(a) for a in appointments]
 
 @app.get("/appointments/doctor/{doctor_id}", response_model=List[AppointmentResponse])
 async def get_doctor_appointments(
@@ -233,7 +237,7 @@ async def get_doctor_appointments(
     if status:
         query = query.filter(Appointment.status == status)
     appointments = query.order_by(Appointment.appointment_date.desc()).all()
-    return appointments
+    return [serialize_appointment(a) for a in appointments]
 
 @app.put("/appointments/{appointment_id}", response_model=AppointmentResponse)
 async def update_appointment(
@@ -249,7 +253,7 @@ async def update_appointment(
     
     old_status = appointment.status
     
-    for field, value in update_data.model_dump(exclude_unset=True).items():
+    for field, value in update_data.dict(exclude_unset=True).items():
         setattr(appointment, field, value)
     
     appointment.updated_at = datetime.utcnow()
@@ -267,7 +271,7 @@ async def update_appointment(
         db.commit()
     
     db.refresh(appointment)
-    return appointment
+    return serialize_appointment(appointment)
 
 @app.post("/appointments/{appointment_id}/cancel")
 async def cancel_appointment(
