@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, Header, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from typing import Optional, List
 from sqlalchemy.orm import Session
 from datetime import datetime, date, time, timedelta
@@ -40,6 +40,12 @@ class AppointmentCreate(BaseModel):
     end_time: time
     reason: str
     symptoms: Optional[str] = None
+    
+    @validator('patient_id', 'doctor_id', pre=True)
+    def convert_to_int(cls, v):
+        if isinstance(v, str):
+            return int(v)
+        return v
 
 class AppointmentUpdate(BaseModel):
     status: Optional[str] = None
