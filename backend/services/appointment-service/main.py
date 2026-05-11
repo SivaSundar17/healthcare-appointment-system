@@ -136,7 +136,7 @@ async def create_appointment(
             consultation_fee = 0
         
         new_appointment = Appointment(
-            **appointment.model_dump(),
+            **appointment.dict(),
             amount=consultation_fee
         )
         db.add(new_appointment)
