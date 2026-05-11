@@ -163,6 +163,8 @@ async def create_appointment(
         db.add(new_appointment)
         db.commit()
         db.refresh(new_appointment)
+    except HTTPException:
+        raise  # Re-raise HTTPException to preserve status code (400, etc.)
     except Exception as e:
         import traceback
         error_detail = f"Error creating appointment: {str(e)}\nTraceback: {traceback.format_exc()}"
