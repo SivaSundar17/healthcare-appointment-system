@@ -79,9 +79,9 @@ class AvailabilityResponse(BaseModel):
     id: int
     doctor_id: int
     day_of_week: Optional[int] = None
-    date: Optional[date] = None
-    start_time: Optional[time] = None
-    end_time: Optional[time] = None
+    date: Optional[str] = None  # ISO format string
+    start_time: Optional[str] = None  # ISO format string
+    end_time: Optional[str] = None  # ISO format string
     is_available: Optional[bool] = True
     slot_duration: Optional[int] = 30
     
