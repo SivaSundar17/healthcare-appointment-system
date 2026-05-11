@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, String, Integer, DateTime, Text, Boolean, Float
+from sqlalchemy import create_engine, Column, String, Integer, DateTime, Date, Text, Boolean, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 import os
@@ -36,11 +36,11 @@ class MedicalRecord(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, index=True)  # Integer ID referencing patients.id
-    record_type = Column(String)  # diagnosis, prescription, lab_report, etc.
-    title = Column(String)
-    description = Column(Text)
-    file_url = Column(String)  # URL to stored document
     doctor_id = Column(Integer, index=True)  # Integer ID referencing doctors.id
+    record_date = Column(Date)  # Date of the medical record
+    diagnosis = Column(Text)
+    prescription = Column(Text)
+    notes = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationships (for ORM only, no ForeignKey constraints - specify primaryjoin)
