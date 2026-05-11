@@ -76,20 +76,20 @@ class PatientResponse(BaseModel):
         extra = 'ignore'
 
 class MedicalRecordCreate(BaseModel):
-    record_type: str
-    title: str
-    description: Optional[str] = None
-    file_url: Optional[str] = None
-    doctor_id: str
+    doctor_id: int
+    record_date: Optional[str] = None  # Format: YYYY-MM-DD
+    diagnosis: Optional[str] = None
+    prescription: Optional[str] = None
+    notes: Optional[str] = None
 
 class MedicalRecordResponse(BaseModel):
     id: Optional[int] = None
-    patient_id: Optional[str] = None
-    record_type: Optional[str] = None
-    title: Optional[str] = None
-    description: Optional[str] = None
-    file_url: Optional[str] = None
-    doctor_id: Optional[str] = None
+    patient_id: Optional[int] = None
+    doctor_id: Optional[int] = None
+    record_date: Optional[date] = None
+    diagnosis: Optional[str] = None
+    prescription: Optional[str] = None
+    notes: Optional[str] = None
     created_at: Optional[datetime] = None
     
     class Config:
@@ -237,3 +237,84 @@ async def get_patients(skip: int = 0, limit: int = 100, db: Session = Depends(ge
             "updated_at": patient.updated_at
         })
     return result
+
+# ============ MEDICAL RECORDS ENDPOINTS ============
+
+# Get medical records for a patient
+@app.get("/patients/{patient_id}/medical-records", response_model=List[MedicalRecordResponse])
+async def get_medical_records(patient_id: int, db: Session = Depends(get_db)):
+    """Get all medical records for a patient"""
+    # Verify patient exists
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    
+    records = db.query(MedicalRecord).filter(MedicalRecord.patient_id == patient_id).order_by(MedicalRecord.record_date.desc()).all()
+    
+    # Convert to dicts handling NULL values
+    result = []
+    for record in records:
+        result.append({
+            "id": record.id,
+            "patient_id": record.patient_id,
+            "doctor_id": record.doctor_id,
+            "record_date": record.record_date,
+            "diagnosis": record.diagnosis,
+            "prescription": record.prescription,
+            "notes": record.notes,
+            "created_at": record.created_at
+        })
+    return result
+
+# Create medical record
+@app.post("/patients/{patient_id}/medical-records", response_model=MedicalRecordResponse)
+async def create_medical_record(patient_id: int, record: MedicalRecordCreate, db: Session = Depends(get_db)):
+    """Create a new medical record for a patient"""
+    # Verify patient exists
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    
+    # Create new medical record
+    new_record = MedicalRecord(
+        patient_id=patient_id,
+        doctor_id=record.doctor_id,
+        record_date=record.record_date or datetime.now().date(),
+        diagnosis=record.diagnosis,
+        prescription=record.prescription,
+        notes=record.notes
+    )
+    
+    db.add(new_record)
+    db.commit()
+    db.refresh(new_record)
+    
+    return {
+        "id": new_record.id,
+        "patient_id": new_record.patient_id,
+        "doctor_id": new_record.doctor_id,
+        "record_date": new_record.record_date,
+        "diagnosis": new_record.diagnosis,
+        "prescription": new_record.prescription,
+        "notes": new_record.notes,
+        "created_at": new_record.created_at
+    }
+
+# Get single medical record
+@app.get("/medical-records/{record_id}", response_model=MedicalRecordResponse)
+async def get_medical_record(record_id: int, db: Session = Depends(get_db)):
+    """Get a specific medical record by ID"""
+    record = db.query(MedicalRecord).filter(MedicalRecord.id == record_id).first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Medical record not found")
+    
+    return {
+        "id": record.id,
+        "patient_id": record.patient_id,
+        "doctor_id": record.doctor_id,
+        "record_date": record.record_date,
+        "diagnosis": record.diagnosis,
+        "prescription": record.prescription,
+        "notes": record.notes,
+        "created_at": record.created_at
+    }
