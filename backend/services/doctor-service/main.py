@@ -436,28 +436,36 @@ async def get_available_slots(
     day_of_week = target_date.weekday()  # Monday=0
     
     # Find availability for this doctor on this date or day of week
+    # Check if target_date falls within valid_from/valid_to range
     availability_slots = db.query(Availability).filter(
         Availability.doctor_id == doctor_id,
         Availability.is_available == True,
         (
-            (Availability.date == target_date) |  # Specific date match
-            (
-                (Availability.day_of_week == day_of_week) &  # Day of week match
-                (Availability.date == None)  # Recurring weekly slot
-            )
+            (Availability.day_of_week == day_of_week) |  # Day of week match
+            (Availability.day_of_week == None)  # Any day (daily availability)
+        ),
+        (
+            (Availability.valid_from <= target_date) |  # Valid from date is before or on target
+            (Availability.valid_from == None)  # No start date restriction
+        ),
+        (
+            (Availability.valid_to >= target_date) |  # Valid to date is after or on target
+            (Availability.valid_to == None)  # No end date restriction
         )
     ).all()
     
     if not availability_slots:
         return {"slots": []}
     
-    # Generate time slots based on availability
+    # Generate time slots based on availability (default 30 min slots)
     available_slots = []
+    DEFAULT_SLOT_DURATION = 30  # minutes
+    
     for avail in availability_slots:
-        # Generate slots from start_time to end_time with slot_duration
+        # Generate slots from start_time to end_time with default slot_duration
         current_time = datetime.combine(target_date, avail.start_time)
         end_time = datetime.combine(target_date, avail.end_time)
-        slot_duration = timedelta(minutes=avail.slot_duration or 30)
+        slot_duration = timedelta(minutes=DEFAULT_SLOT_DURATION)
         
         while current_time < end_time:
             slot_start = current_time.time()
