@@ -98,7 +98,7 @@ class MedicalRecordResponse(BaseModel):
         extra = 'ignore'
 
 # Verify token with auth service
-AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://localhost:8001")
+AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "https://healthcare-auth-service.onrender.com")
 
 def verify_token(authorization: Optional[str] = Header(None)):
     if not authorization:

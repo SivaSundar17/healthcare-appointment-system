@@ -19,10 +19,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Service URLs
-AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://localhost:8001")
-DOCTOR_SERVICE_URL = os.getenv("DOCTOR_SERVICE_URL", "http://localhost:8003")
-NOTIFICATION_SERVICE_URL = os.getenv("NOTIFICATION_SERVICE_URL", "http://localhost:8005")
+# Service URLs - use environment variables or default to localhost
+AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "https://healthcare-auth-service.onrender.com")
+DOCTOR_SERVICE_URL = os.getenv("DOCTOR_SERVICE_URL", "https://healthcare-doctor-service.onrender.com")
+NOTIFICATION_SERVICE_URL = os.getenv("NOTIFICATION_SERVICE_URL", "https://healthcare-notification-service.onrender.com")
 
 def get_db():
     db = SessionLocal()
