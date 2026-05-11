@@ -113,34 +113,40 @@ async def create_appointment(
     auth_user: dict = Depends(verify_token)
 ):
     """Book a new appointment"""
-    # Check if slot is available
-    existing = db.query(Appointment).filter(
-        Appointment.doctor_id == appointment.doctor_id,
-        Appointment.appointment_date == appointment.appointment_date,
-        Appointment.start_time == appointment.start_time,
-        Appointment.status.in_(["scheduled", "confirmed"])
-    ).first()
-    
-    if existing:
-        raise HTTPException(status_code=400, detail="Time slot already booked")
-    
-    # Get doctor fee
     try:
-        doctor_response = requests.get(
-            f"{DOCTOR_SERVICE_URL}/doctors/{appointment.doctor_id}",
-            timeout=3
+        # Check if slot is available
+        existing = db.query(Appointment).filter(
+            Appointment.doctor_id == appointment.doctor_id,
+            Appointment.appointment_date == appointment.appointment_date,
+            Appointment.start_time == appointment.start_time,
+            Appointment.status.in_(["scheduled", "confirmed"])
+        ).first()
+        
+        if existing:
+            raise HTTPException(status_code=400, detail="Time slot already booked")
+        
+        # Get doctor fee
+        try:
+            doctor_response = requests.get(
+                f"{DOCTOR_SERVICE_URL}/doctors/{appointment.doctor_id}",
+                timeout=3
+            )
+            consultation_fee = doctor_response.json().get("consultation_fee", 0)
+        except:
+            consultation_fee = 0
+        
+        new_appointment = Appointment(
+            **appointment.model_dump(),
+            amount=consultation_fee
         )
-        consultation_fee = doctor_response.json().get("consultation_fee", 0)
-    except:
-        consultation_fee = 0
-    
-    new_appointment = Appointment(
-        **appointment.model_dump(),
-        amount=consultation_fee
-    )
-    db.add(new_appointment)
-    db.commit()
-    db.refresh(new_appointment)
+        db.add(new_appointment)
+        db.commit()
+        db.refresh(new_appointment)
+    except Exception as e:
+        import traceback
+        error_detail = f"Error creating appointment: {str(e)}\nTraceback: {traceback.format_exc()}"
+        print(error_detail)
+        raise HTTPException(status_code=500, detail=error_detail)
     
     # Add to history
     history = AppointmentHistory(
