@@ -64,11 +64,11 @@ class DoctorResponse(BaseModel):
 
 class AvailabilityCreate(BaseModel):
     day_of_week: Optional[int] = None
-    date: Optional[str] = None  # Format: YYYY-MM-DD
     start_time: str  # Format: HH:MM
     end_time: str  # Format: HH:MM
-    slot_duration: int = 30
     is_available: bool = True
+    valid_from: Optional[str] = None  # Format: YYYY-MM-DD
+    valid_to: Optional[str] = None  # Format: YYYY-MM-DD
 
 class TimeSlot(BaseModel):
     start_time: time
@@ -79,11 +79,11 @@ class AvailabilityResponse(BaseModel):
     id: int
     doctor_id: int
     day_of_week: Optional[int] = None
-    date: Optional[str] = None  # ISO format string
     start_time: Optional[str] = None  # ISO format string
     end_time: Optional[str] = None  # ISO format string
     is_available: Optional[bool] = True
-    slot_duration: Optional[int] = 30
+    valid_from: Optional[str] = None  # ISO format string
+    valid_to: Optional[str] = None  # ISO format string
     
     class Config:
         from_attributes = True
@@ -279,23 +279,31 @@ async def add_availability(doctor_id: int, avail: AvailabilityCreate, db: Sessio
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid time format. Use HH:MM")
     
-    # Parse date if provided
-    date_obj = None
-    if avail.date:
+    # Parse valid_from date if provided
+    valid_from_obj = None
+    if avail.valid_from:
         try:
-            date_obj = datetime.strptime(avail.date, "%Y-%m-%d").date()
+            valid_from_obj = datetime.strptime(avail.valid_from, "%Y-%m-%d").date()
         except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+            raise HTTPException(status_code=400, detail="Invalid valid_from format. Use YYYY-MM-DD")
+    
+    # Parse valid_to date if provided
+    valid_to_obj = None
+    if avail.valid_to:
+        try:
+            valid_to_obj = datetime.strptime(avail.valid_to, "%Y-%m-%d").date()
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid valid_to format. Use YYYY-MM-DD")
     
     # Create availability slot
     new_availability = Availability(
         doctor_id=doctor_id,
         day_of_week=avail.day_of_week,
-        date=date_obj,
         start_time=start_time,
         end_time=end_time,
         is_available=avail.is_available,
-        slot_duration=avail.slot_duration
+        valid_from=valid_from_obj,
+        valid_to=valid_to_obj
     )
     
     db.add(new_availability)
@@ -307,11 +315,11 @@ async def add_availability(doctor_id: int, avail: AvailabilityCreate, db: Sessio
         "id": new_availability.id,
         "doctor_id": new_availability.doctor_id,
         "day_of_week": new_availability.day_of_week,
-        "date": new_availability.date.isoformat() if new_availability.date else None,
         "start_time": new_availability.start_time.isoformat() if new_availability.start_time else None,
         "end_time": new_availability.end_time.isoformat() if new_availability.end_time else None,
         "is_available": new_availability.is_available if new_availability.is_available is not None else True,
-        "slot_duration": new_availability.slot_duration or 30
+        "valid_from": new_availability.valid_from.isoformat() if new_availability.valid_from else None,
+        "valid_to": new_availability.valid_to.isoformat() if new_availability.valid_to else None
     }
 
 # Get doctor's availability
@@ -327,11 +335,11 @@ async def get_availability(doctor_id: int, db: Session = Depends(get_db)):
             "id": slot.id,
             "doctor_id": slot.doctor_id,
             "day_of_week": slot.day_of_week,
-            "date": slot.date.isoformat() if slot.date else None,
             "start_time": slot.start_time.isoformat() if slot.start_time else None,
             "end_time": slot.end_time.isoformat() if slot.end_time else None,
             "is_available": slot.is_available if slot.is_available is not None else True,
-            "slot_duration": slot.slot_duration or 30
+            "valid_from": slot.valid_from.isoformat() if slot.valid_from else None,
+            "valid_to": slot.valid_to.isoformat() if slot.valid_to else None
         })
     return result
 
@@ -346,11 +354,6 @@ async def update_availability(slot_id: int, avail_update: AvailabilityCreate, db
     # Update fields
     if avail_update.day_of_week is not None:
         slot.day_of_week = avail_update.day_of_week
-    if avail_update.date:
-        try:
-            slot.date = datetime.strptime(avail_update.date, "%Y-%m-%d").date()
-        except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
     if avail_update.start_time:
         try:
             slot.start_time = datetime.strptime(avail_update.start_time, "%H:%M").time()
@@ -363,13 +366,31 @@ async def update_availability(slot_id: int, avail_update: AvailabilityCreate, db
             raise HTTPException(status_code=400, detail="Invalid time format. Use HH:MM")
     if avail_update.is_available is not None:
         slot.is_available = avail_update.is_available
-    if avail_update.slot_duration:
-        slot.slot_duration = avail_update.slot_duration
+    if avail_update.valid_from:
+        try:
+            slot.valid_from = datetime.strptime(avail_update.valid_from, "%Y-%m-%d").date()
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid valid_from format. Use YYYY-MM-DD")
+    if avail_update.valid_to:
+        try:
+            slot.valid_to = datetime.strptime(avail_update.valid_to, "%Y-%m-%d").date()
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid valid_to format. Use YYYY-MM-DD")
     
     db.commit()
     db.refresh(slot)
     
-    return slot
+    # Convert to dict to handle time/date serialization
+    return {
+        "id": slot.id,
+        "doctor_id": slot.doctor_id,
+        "day_of_week": slot.day_of_week,
+        "start_time": slot.start_time.isoformat() if slot.start_time else None,
+        "end_time": slot.end_time.isoformat() if slot.end_time else None,
+        "is_available": slot.is_available if slot.is_available is not None else True,
+        "valid_from": slot.valid_from.isoformat() if slot.valid_from else None,
+        "valid_to": slot.valid_to.isoformat() if slot.valid_to else None
+    }
 
 # Delete availability slot
 @app.delete("/availability/{slot_id}")

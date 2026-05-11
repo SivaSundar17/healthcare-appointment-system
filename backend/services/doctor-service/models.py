@@ -37,11 +37,12 @@ class Availability(Base):
     id = Column(Integer, primary_key=True, index=True)
     doctor_id = Column(Integer, index=True)  # Integer ID referencing doctors.id
     day_of_week = Column(Integer)  # 0=Monday, 6=Sunday (Python weekday convention)
-    date = Column(Date)
     start_time = Column(Time)
     end_time = Column(Time)
     is_available = Column(Boolean, default=True)
-    slot_duration = Column(Integer, default=30)  # minutes
+    valid_from = Column(Date)
+    valid_to = Column(Date)
+    created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationships (for ORM only, no ForeignKey constraints - specify primaryjoin)
     doctor = relationship("Doctor", primaryjoin="Availability.doctor_id == Doctor.id", foreign_keys=[doctor_id], back_populates="availability")
