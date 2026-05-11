@@ -52,21 +52,22 @@ class AppointmentResponse(BaseModel):
     id: int
     patient_id: int
     doctor_id: int
-    appointment_date: date
-    start_time: time
-    end_time: time
+    appointment_date: Optional[str] = None  # ISO format date
+    start_time: Optional[str] = None  # ISO format time
+    end_time: Optional[str] = None  # ISO format time
     status: str
-    reason: Optional[str]
-    notes: Optional[str]
-    prescription: Optional[str]
-    symptoms: Optional[str]
-    diagnosis: Optional[str]
-    amount: Optional[float]
-    payment_status: str
-    created_at: datetime
+    reason: Optional[str] = None
+    notes: Optional[str] = None
+    prescription: Optional[str] = None
+    symptoms: Optional[str] = None
+    diagnosis: Optional[str] = None
+    amount: Optional[float] = None
+    payment_status: Optional[str] = "pending"
+    created_at: Optional[str] = None  # ISO format datetime
     
     class Config:
         from_attributes = True
+        extra = 'ignore'
 
 class CancelAppointment(BaseModel):
     reason: str
@@ -175,7 +176,24 @@ async def create_appointment(
         "appointment_confirmed"
     )
     
-    return new_appointment
+    # Return properly serialized response
+    return {
+        "id": new_appointment.id,
+        "patient_id": new_appointment.patient_id,
+        "doctor_id": new_appointment.doctor_id,
+        "appointment_date": new_appointment.appointment_date.isoformat() if new_appointment.appointment_date else None,
+        "start_time": new_appointment.start_time.isoformat() if new_appointment.start_time else None,
+        "end_time": new_appointment.end_time.isoformat() if new_appointment.end_time else None,
+        "status": new_appointment.status,
+        "reason": new_appointment.reason,
+        "notes": new_appointment.notes,
+        "prescription": new_appointment.prescription,
+        "symptoms": new_appointment.symptoms,
+        "diagnosis": new_appointment.diagnosis,
+        "amount": new_appointment.amount,
+        "payment_status": new_appointment.payment_status,
+        "created_at": new_appointment.created_at.isoformat() if new_appointment.created_at else None
+    }
 
 @app.get("/appointments/{appointment_id}", response_model=AppointmentResponse)
 async def get_appointment(
