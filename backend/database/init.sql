@@ -125,8 +125,8 @@ CREATE TABLE medical_records (
 -- Create doctor_reviews table (managed by doctor-service)
 CREATE TABLE doctor_reviews (
     id SERIAL PRIMARY KEY,
-    doctor_id VARCHAR,
-    patient_id VARCHAR,
+    doctor_id INTEGER,
+    patient_id INTEGER,
     rating INTEGER,
     review TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

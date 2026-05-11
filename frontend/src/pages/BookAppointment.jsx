@@ -14,8 +14,8 @@ import {
 import axios from 'axios';
 import { format, addDays, isSameDay } from 'date-fns';
 
-const API_URL_DOCTOR = 'http://localhost:8003';
-const API_URL_APPOINTMENT = 'http://localhost:8004';
+const API_URL_DOCTOR = import.meta.env.VITE_DOCTOR_URL || 'http://localhost:8003';
+const API_URL_APPOINTMENT = import.meta.env.VITE_APPOINTMENT_URL || 'http://localhost:8004';
 
 const BookAppointment = () => {
   const { doctorId } = useParams();

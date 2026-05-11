@@ -15,7 +15,7 @@ import {
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
-const API_URL = 'http://localhost:8003'; // Direct to Doctor Service (local)
+const API_URL = import.meta.env.VITE_DOCTOR_URL || 'http://localhost:8003'; // Direct to Doctor Service
 
 const DoctorDirectory = () => {
   const { user, userRole } = useAuth();

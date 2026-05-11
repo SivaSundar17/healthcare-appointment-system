@@ -14,8 +14,8 @@ import {
 import axios from 'axios';
 import { format } from 'date-fns';
 
-const API_URL_USER = 'http://localhost:8002';
-const API_URL_APPOINTMENT = 'http://localhost:8004';
+const API_URL_USER = import.meta.env.VITE_USER_URL || 'http://localhost:8002';
+const API_URL_APPOINTMENT = import.meta.env.VITE_APPOINTMENT_URL || 'http://localhost:8004';
 
 const PatientDashboard = () => {
   const { user, token } = useAuth();

@@ -1,11 +1,11 @@
 import axios from 'axios';
 
 // Service URLs - can be overridden by environment variables
-const AUTH_URL = 'http://localhost:8001';
-const DOCTOR_URL = 'http://localhost:8003';
-const APPOINTMENT_URL = 'http://localhost:8004';
-const USER_URL = 'http://localhost:8002';
-const NOTIFICATION_URL = 'http://localhost:8005';
+const AUTH_URL = import.meta.env.VITE_AUTH_URL || 'http://localhost:8001';
+const DOCTOR_URL = import.meta.env.VITE_DOCTOR_URL || 'http://localhost:8003';
+const APPOINTMENT_URL = import.meta.env.VITE_APPOINTMENT_URL || 'http://localhost:8004';
+const USER_URL = import.meta.env.VITE_USER_URL || 'http://localhost:8002';
+const NOTIFICATION_URL = import.meta.env.VITE_NOTIFICATION_URL || 'http://localhost:8005';
 
 // Create axios instances for each service
 const authApi = axios.create({
